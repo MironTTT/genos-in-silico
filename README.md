@@ -14,7 +14,7 @@ The platform is disease-agnostic by design. Its first instantiation targets Alzh
 
 The system runs entirely on commodity hardware: a single consumer GPU with 8 GB of VRAM for neural inference, a multi-core CPU for numerical simulation, and 16 GB of RAM. No cloud services, no external APIs, no large language models at runtime. Every computation is reproducible, auditable, and owned by the researcher.
 
-1. Vision
+# 1. Vision
 Modern drug discovery is fragmented. Generative chemistry tools produce molecules but stop at validity. Pharmacokinetic simulators model drug disposition but cannot design drugs. Neural simulators reproduce tissue electrophysiology but never see a drug. Clinical trials integrate everything — but only after a decade of preclinical work and billions of dollars.
 
 Genos-in-Silico closes this loop locally.
@@ -23,7 +23,7 @@ It is built on a simple conviction: a single researcher, on a single workstation
 
 The platform is not a black box. It is not a cloud service. It is not a wrapper around a proprietary model. It is a scientific instrument — a piece of software whose every equation, every constant, and every threshold is visible, editable, and reproducible.
 
-2. Scientific Philosophy
+# 2. Scientific Philosophy
 Three principles shape every design decision.
 
 First: physics before statistics. Where a process can be described by a mechanistic model — mass conservation, first-order kinetics, diffusion on a graph — the platform uses one. Machine learning is reserved for the parts of the problem where mechanism is genuinely unknown or intractable: the generation of novel molecular structures. Everything downstream of generation is deterministic and auditable.
@@ -32,8 +32,8 @@ Second: multi-scale integration over single-scale depth. The value of the platfo
 
 Third: reproducibility as a first-class feature. Every simulation produces a complete log: the molecule, its descriptors, the patient parameters, the numerical solver settings, the time series of every state variable. Any result can be re-run bit-for-bit. Any parameter can be traced to its source — a literature reference, a user slider, or a model prediction.
 
-3. What the Platform Does
-3.1. Generates Novel Molecules
+# 3. What the Platform Does
+## 3.1. Generates Novel Molecules
 At the top of the pipeline sits a variational autoencoder (VAE) operating on SMILES strings. The model is deliberately compact — on the order of two to five million parameters — so that it fits comfortably within the memory budget of a consumer GPU. It is trained on the ZINC-250k dataset, a curated collection of drug-like molecules chosen for its balance of chemical diversity, cleanliness, and computational tractability.
 
 The VAE learns a continuous latent representation of chemical space. Once trained, it can:
@@ -48,7 +48,7 @@ Cross over two parent molecules by mixing their latent representations, mimickin
 
 The output is a stream of candidate SMILES strings — chemically valid by construction, novel by sampling, and biased toward the drug-like region of chemical space by training.
 
-3.2. Filters with Physicochemical Rigor
+## 3.2. Filters with Physicochemical Rigor
 Not every generated molecule deserves to enter a physiological simulation. The physicochemical arbiter is a deterministic, rule-based filter that rejects molecules violating well-established drug-likeness criteria before they consume computational resources.
 
 The arbiter evaluates:
@@ -63,7 +63,7 @@ Toxicophores — SMARTS-pattern matches against a curated library of known struc
 
 This stage is fast, conservative, and transparent. It does not use machine learning. It does not guess. It applies hard thresholds derived from decades of medicinal chemistry literature, and it reports its reasoning: every rejected molecule carries a machine-readable explanation. When the user wants to know why a compound was excluded, the answer is immediate and unambiguous.
 
-3.3. Simulates Whole-Body Pharmacokinetics
+## 3.3. Simulates Whole-Body Pharmacokinetics
 Molecules that pass the arbiter enter a five-compartment physiologically based pharmacokinetic (PBPK) model. The compartments are:
 
 Gut — site of absorption.
@@ -88,12 +88,12 @@ Dose determines the initial drug load in the gut compartment.
 
 This is the platform's pharmacological realism: the same molecule produces different plasma profiles, different tissue exposures, and different toxicities depending on the patient being simulated. A candidate that works in a healthy thirty-year-old may fail catastrophically in a comorbid seventy-year-old, and the platform shows this explicitly.
 
-3.4. Estimates Blood–Brain-Barrier Permeability
+## 3.4. Estimates Blood–Brain-Barrier Permeability
 For central nervous system targets, the most common reason a promising molecule fails is that it never reaches the brain. The platform includes an explicit blood–brain-barrier permeability estimator based on molecular polar surface area and lipophilicity — the two descriptors most strongly correlated with passive BBB crossing in the literature.
 
 The estimator returns a permeability coefficient between zero and one, which modulates the effective blood flow to the brain compartment in the PBPK model. A molecule with poor predicted permeability simply never accumulates in the brain, no matter how well it performs in the test tube. The user can additionally adjust a BBB integrity slider, modeling pathological barrier compromise — as occurs in neuroinflammation, aging, and several neurodegenerative conditions.
 
-3.5. Models the Disease at the Cellular Level
+## 3.5. Models the Disease at the Cellular Level
 The brain is represented as a graph of exactly one thousand spiking neurons, each modeled as a leaky integrate-and-fire unit, interconnected according to a NetworkX graph. The exact number — one thousand — is chosen to fit within the computational budget of the target hardware while remaining large enough to exhibit nontrivial network dynamics: propagating activity, cascading failures, and emergent rescue patterns.
 
 In the Alzheimer's instantiation, the pathology is amyloid-β:
@@ -112,7 +112,7 @@ Off-target toxicity: at high local concentrations, the drug damages healthy syna
 
 The result of each simulation is not a single score but a trajectory: the time series of neuronal survival, synaptic density, and drug concentration in each compartment, visualized in real time.
 
-4. Disease Scalability
+# 4. Disease Scalability
 Genos-in-Silico is not an Alzheimer's platform. It is a platform whose first instantiation is Alzheimer's. The distinction matters architecturally.
 
 To retarget the platform to a new disease — Parkinson's, Huntington's, a cancer, a cardiac arrhythmia, a metabolic disorder — exactly four components are replaced:
