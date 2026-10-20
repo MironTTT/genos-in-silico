@@ -10,11 +10,10 @@ from dataclasses import dataclass
 from rdkit import Chem
 from rdkit.Chem import Crippen, Descriptors
 
-# Порог длины SMILES-строки: защита от аномально длинных входов,
-# способных привести к зависанию парсера RDKit.
+# Cap on SMILES length so pathological inputs can't hang the RDKit parser.
 _MAX_SMILES_LENGTH = 10_000
 
-# Константы модели растворимости ESOL (Delaney, 2004).
+# ESOL (Delaney, 2004) solubility model constants.
 _ESOL_INTERCEPT = 0.16
 _ESOL_LOGP_COEF = -0.63
 _ESOL_MW_COEF = -0.0062
@@ -107,7 +106,7 @@ class Molecule:
 
         try:
             mol = Chem.MolFromSmiles(smiles)
-        except Exception as exc:  # noqa: BLE001 - RDKit бросает разные типы исключений
+        except Exception as exc:  # noqa: BLE001 - RDKit raises various exception types
             raise ValueError(f"Не удалось разобрать SMILES {smiles!r}: {exc}") from exc
 
         if mol is None:

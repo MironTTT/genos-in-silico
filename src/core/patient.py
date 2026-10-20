@@ -7,10 +7,8 @@
 
 from dataclasses import dataclass, fields
 
-# Поля со здоровье-зависимыми коэффициентами: допустимый диапазон [0.0, 1.0].
 _HEALTH_FIELDS = ("liver_health", "kidney_health", "bbb_integrity")
 
-# Допустимые диапазоны значений полей пациента.
 _HEALTH_MIN = 0.0
 _HEALTH_MAX = 1.0
 _AGE_MIN = 0
