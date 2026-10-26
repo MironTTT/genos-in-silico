@@ -9,6 +9,9 @@
 physiological data for use in radiological protection: reference
 values». Клиренсы и константа всасывания — модельные значения для
 здорового взрослого (ICRP 89 напрямую не регламентирует фармакокинетику).
+
+Параметры модели гастрита (секция Gastric) — откровенно модельные
+величины, к ICRP 89 не привязаны.
 """
 
 # --- Compartment volumes (L) ---
@@ -97,6 +100,33 @@ WEIGHT_REF_KG = 70.0
 
 ICRP 89: reference adult male, 70 кг."""
 
+# --- Gastric acidity (model values, not from ICRP) ---
+
+GASTRIC_SECRETION_BASE = 50.0
+"""Базовая секреция желудочной кислоты, ммоль/ч (норма).
+
+Модельное значение для здорового взрослого; при терапии умножается
+на (1 - drug_efficacy) — лекарство блокирует выработку."""
+
+GASTRIC_EVACUATION_RATE = 0.5
+"""Константа эвакуации кислоты из желудка, 1/ч.
+
+Модельное значение: желудок опорожняется примерно вдвое за 1.5 ч."""
+
+GASTRIC_NEUTRALIZATION = 5.0
+"""Базовая нейтрализация кислоты слизистым барьером, ммоль/ч.
+
+Модельное значение — постоянное гашение кислоты слизью желудка."""
+
+GASTRIC_INITIAL_ACID_MMOL = 50.0
+"""Начальное количество кислоты в желудке в момент t = 0, ммоль."""
+
+GASTRIC_PH_FLOOR = 1e-7
+"""Минимальная концентрация кислоты (моль/л) для расчёта pH.
+
+Защищает от логарифма нуля: при полностью ушедшей кислоте pH
+упирается в нейтральный предел ≈ 7."""
+
 # --- Consistency check (guards against typos when editing) ---
 
 # Organ flows are only part of cardiac output, so their sum must not exceed it.
@@ -120,4 +150,9 @@ __all__ = [
     "KA_BASE",
     "CARDIAC_OUTPUT_BASE",
     "WEIGHT_REF_KG",
+    "GASTRIC_SECRETION_BASE",
+    "GASTRIC_EVACUATION_RATE",
+    "GASTRIC_NEUTRALIZATION",
+    "GASTRIC_INITIAL_ACID_MMOL",
+    "GASTRIC_PH_FLOOR",
 ]
