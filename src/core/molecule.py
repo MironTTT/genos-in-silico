@@ -79,8 +79,29 @@ class Molecule:
     solubility_logs: float
     """Логарифм водорастворимости (logS, моль/л) по модели ESOL."""
 
+    ki: float = 1.0
+    """Константа ингибирования мишени, мг/л (та же шкала, что C_blood).
+
+    Сродство молекулы к мишени: чем меньше ki, тем сильнее препарат
+    блокирует мишень при той же концентрации. Пока задаётся вручную,
+    в будущем будет предсказываться ИИ-генератором."""
+
+    def __post_init__(self) -> None:
+        """Валидирует ``ki``: строго положительное конечное число.
+
+        :raises ValueError: если ``ki`` не число (включая bool) или <= 0.
+        """
+        if isinstance(self.ki, bool) or not isinstance(self.ki, (int, float)):
+            raise ValueError(
+                f"Поле 'ki' должно быть числом, получено {type(self.ki).__name__}."
+            )
+        if self.ki <= 0:
+            raise ValueError(
+                f"Поле 'ki' должно быть строго больше нуля, получено {self.ki}."
+            )
+
     @classmethod
-    def from_smiles(cls, smiles: str) -> "Molecule":
+    def from_smiles(cls, smiles: str, ki: float = 1.0) -> "Molecule":
         """Создаёт ``Molecule`` из строки SMILES.
 
         Дескрипторы вычисляются через RDKit: ``MolFromSmiles`` для
@@ -91,9 +112,10 @@ class Molecule:
         по модели ESOL.
 
         :param smiles: SMILES-строка молекулы.
+        :param ki: константа ингибирования мишени, мг/л (по умолчанию 1.0).
         :return: экземпляр ``Molecule`` с заполненными дескрипторами.
         :raises ValueError: если SMILES пуст, превышает допустимую длину
-            или не может быть разобран RDKit.
+            или не может быть разобран RDKit; если ``ki`` <= 0.
         """
         if not isinstance(smiles, str) or not smiles.strip():
             raise ValueError("SMILES должен быть непустой строкой.")
@@ -127,4 +149,5 @@ class Molecule:
             solubility_logs=_esol_log_s(
                 mol, logp=logp, mw=mw, rotatable_bonds=rotatable_bonds
             ),
+            ki=ki,
         )
